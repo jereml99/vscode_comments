@@ -21,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register Commands
 	const getThreadId = (arg: any): string | undefined => {
+		if (typeof arg === 'string') { return arg; } // From Markdown link
 		if (arg instanceof ReviewTreeDataProvider) { return undefined; } // Should not happen but just in case
 		if (arg && arg.thread && arg.thread.id) { return arg.thread.id; } // From TreeView context
 		if (arg && arg.id) { return arg.id; } // From direct object
@@ -69,7 +70,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand('reviewComments.filterAll', () => treeDataProvider.setFilter('all')),
 		vscode.commands.registerCommand('reviewComments.filterOpen', () => treeDataProvider.setFilter('open')),
-		vscode.commands.registerCommand('reviewComments.filterResolved', () => treeDataProvider.setFilter('resolved'))
+
+		vscode.commands.registerCommand('reviewComments.filterResolved', () => treeDataProvider.setFilter('resolved')),
+
+		vscode.commands.registerCommand('reviewComments.copyComment', async (text: string) => {
+			if (text) {
+				await vscode.env.clipboard.writeText(text);
+				vscode.window.showInformationMessage('Comment copied to clipboard');
+			}
+		})
 	);
 
 	// Initial Load & Decorate

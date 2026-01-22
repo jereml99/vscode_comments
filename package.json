@@ -10,10 +10,9 @@
   "categories": [
     "Other"
   ],
+  "icon": "resources/icon.png",
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:reviewComments.addThread",
-    "onView:review-comments-sidebar"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {

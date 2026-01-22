@@ -25,7 +25,7 @@ export class DecorationManager {
         const resolvedDecorations: vscode.DecorationOptions[] = [];
 
         for (const { thread, range, isOrphaned } of anchoredThreads) {
-            if (isOrphaned || !range) {continue;}
+            if (isOrphaned || !range) { continue; }
 
             const decoration: vscode.DecorationOptions = {
                 range,
@@ -44,15 +44,43 @@ export class DecorationManager {
     }
 
     private createHoverMessage(thread: any): vscode.MarkdownString {
-        const firstMsg = thread.messages[0];
         const md = new vscode.MarkdownString();
-        md.appendMarkdown(`**Review Comment** (${thread.status})\n\n`);
-        if (firstMsg) {
-            md.appendMarkdown(`*${firstMsg.author}:* ${firstMsg.body}\n\n`);
-        }
-        md.appendMarkdown(`--- \n`);
-        md.appendMarkdown(`${thread.messages.length} messages. [View Thread](command:reviewComments.openThread?${encodeURIComponent(JSON.stringify([thread.id]))})`);
         md.isTrusted = true;
+        md.supportHtml = true;
+        md.supportThemeIcons = true;
+
+        // Header
+        md.appendMarkdown(`**Review Thread** (${thread.status})\n\n`);
+
+        // Loop through all messages
+        thread.messages.forEach((msg: any, index: number) => {
+            const dateStr = new Date(msg.createdAt).toLocaleString();
+            md.appendMarkdown(`**${msg.author || 'User'}** _${dateStr}_\n`);
+
+            // Blockquote for message body
+            md.appendMarkdown(`> ${msg.body.replace(/\n/g, '\n> ')}\n\n`);
+
+            // Add spacing between messages if not last
+            if (index < thread.messages.length - 1) {
+                md.appendMarkdown(`---\n`);
+            }
+        });
+
+        md.appendMarkdown(`---\n`);
+
+        // Action Links
+        const threadIdRef = encodeURIComponent(JSON.stringify([thread.id]));
+        const lastMsg = thread.messages[thread.messages.length - 1];
+        const textToCopy = lastMsg ? lastMsg.body : '';
+        const copyArg = encodeURIComponent(JSON.stringify([textToCopy]));
+
+        if (thread.status !== 'resolved') {
+            md.appendMarkdown(`[$(reply) Reply](command:reviewComments.replyThread?${threadIdRef}) &nbsp;&nbsp; `);
+            md.appendMarkdown(`[$(check) Resolve](command:reviewComments.resolveThread?${threadIdRef}) &nbsp;&nbsp; `);
+        }
+
+        md.appendMarkdown(`[$(copy) Copy](command:reviewComments.copyComment?${copyArg})`);
+
         return md;
     }
 

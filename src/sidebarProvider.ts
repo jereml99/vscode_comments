@@ -102,29 +102,56 @@ export class ReviewFileItem extends vscode.TreeItem {
 
 export class ReviewThreadItem extends vscode.TreeItem {
     constructor(public readonly thread: ReviewThread) {
+        // Label: First message summary
         super(thread.messages[0]?.body || 'Comment Thread', vscode.TreeItemCollapsibleState.Collapsed);
 
+        // Description: Author • Status
         this.description = `${thread.messages[0]?.author || 'User'} • ${thread.status}`;
-        this.tooltip = new vscode.MarkdownString(`**${thread.messages[0]?.author}**: ${thread.messages[0]?.body}\n\n*${new Date(thread.updatedAt).toLocaleString()}*`);
+
+        const md = new vscode.MarkdownString();
+        // Tooltip: Full thread preview
+        md.appendMarkdown(`**${thread.messages[0]?.author || 'User'}** (${new Date(thread.updatedAt).toLocaleString()})\n\n`);
+        md.appendMarkdown(`${thread.messages[0]?.body}\n\n`);
+        if (thread.messages.length > 1) {
+            md.appendMarkdown(`---\n*+${thread.messages.length - 1} replies*\n`);
+        }
+        md.isTrusted = true;
+        this.tooltip = md;
 
         // Match package.json "viewItem == thread-open" / "thread-resolved"
         this.contextValue = thread.status === 'resolved' ? 'thread-resolved' : 'thread-open';
 
         if (thread.status === 'resolved') {
-            this.iconPath = new vscode.ThemeIcon('check', new vscode.ThemeColor('charts.green'));
+            this.iconPath = new vscode.ThemeIcon('check', new vscode.ThemeColor('testing.iconPassed'));
         } else if (thread.status === 'orphaned') {
-            this.iconPath = new vscode.ThemeIcon('warning', new vscode.ThemeColor('charts.orange'));
+            this.iconPath = new vscode.ThemeIcon('warning', new vscode.ThemeColor('testing.iconFailed'));
         } else {
-            this.iconPath = new vscode.ThemeIcon('comment-discussion');
+            this.iconPath = new vscode.ThemeIcon('comment-discussion', new vscode.ThemeColor('charts.blue'));
         }
+
+        // Enable click to navigate
+        this.command = {
+            command: 'reviewComments.openThread',
+            title: 'Open Thread',
+            arguments: [thread]
+        };
     }
 }
 
 export class ReviewMessageItem extends vscode.TreeItem {
     constructor(message: any) {
-        super(message.body, vscode.TreeItemCollapsibleState.None);
-        this.description = `${message.author || 'User'} • ${new Date(message.createdAt).toLocaleString()}`;
-        this.tooltip = new vscode.MarkdownString(`**${message.author}**: ${message.body}`);
-        this.iconPath = new vscode.ThemeIcon('comment');
+        // Label: Author
+        super(message.author || 'User', vscode.TreeItemCollapsibleState.None);
+
+        // Description: Truncated Body
+        this.description = message.body;
+
+        const md = new vscode.MarkdownString();
+        md.appendMarkdown(`**${message.author || 'User'}** (${new Date(message.createdAt).toLocaleString()})\n\n`);
+        md.appendMarkdown(`${message.body}`);
+        md.isTrusted = true;
+        this.tooltip = md;
+
+        this.iconPath = new vscode.ThemeIcon('account');
     }
 }
