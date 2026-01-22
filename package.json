@@ -63,6 +63,14 @@
         "command": "reviewComments.refreshThreads",
         "title": "Refresh Threads",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "reviewComments.deleteMessage",
+        "title": "Delete Comment"
+      },
+      {
+        "command": "reviewComments.editMessage",
+        "title": "Edit Comment"
       }
     ],
     "keybindings": [
@@ -108,6 +116,21 @@
           "command": "reviewComments.reopenThread",
           "when": "view == review-comments-sidebar && viewItem == thread-resolved",
           "group": "inline"
+        },
+        {
+          "command": "reviewComments.deleteThread",
+          "when": "view == review-comments-sidebar && (viewItem == thread-open || viewItem == thread-resolved)",
+          "group": "modification"
+        },
+        {
+          "command": "reviewComments.editMessage",
+          "when": "view == review-comments-sidebar && viewItem == message",
+          "group": "modification"
+        },
+        {
+          "command": "reviewComments.deleteMessage",
+          "when": "view == review-comments-sidebar && viewItem == message",
+          "group": "modification"
         }
       ]
     }

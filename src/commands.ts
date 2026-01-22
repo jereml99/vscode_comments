@@ -14,7 +14,7 @@ export class CommandHandler {
 
     public async addThread() {
         const editor = vscode.window.activeTextEditor;
-        if (!editor) {return;}
+        if (!editor) { return; }
 
         const selection = editor.selection;
         if (selection.isEmpty) {
@@ -29,7 +29,7 @@ export class CommandHandler {
         }
 
         const commentText = await vscode.window.showInputBox({ prompt: 'Enter your comment' });
-        if (!commentText) {return;}
+        if (!commentText) { return; }
 
         const anchor = AnchoringEngine.createAnchor(editor.document, selection);
         // Calculate path relative to the specific root
@@ -69,10 +69,10 @@ export class CommandHandler {
             thread = picked?.thread;
         }
 
-        if (!thread) {return;}
+        if (!thread) { return; }
 
         const replyText = await vscode.window.showInputBox({ prompt: 'Enter your reply' });
-        if (!replyText) {return;}
+        if (!replyText) { return; }
 
         const message: ReviewMessage = {
             id: uuidv4(),
@@ -130,7 +130,7 @@ export class CommandHandler {
         } else {
             // Fallback: try to find the file in the first workspace folder or search?
             const workspaceFolders = vscode.workspace.workspaceFolders;
-            if (!workspaceFolders) {return;}
+            if (!workspaceFolders) { return; }
             uri = vscode.Uri.joinPath(workspaceFolders[0].uri, threadObj.filePath);
         }
 
@@ -171,8 +171,8 @@ export class CommandHandler {
             }));
             // Sort: orphaned first
             items.sort((a, b) => {
-                if (a.thread.status === 'orphaned' && b.thread.status !== 'orphaned') {return -1;}
-                if (a.thread.status !== 'orphaned' && b.thread.status === 'orphaned') {return 1;}
+                if (a.thread.status === 'orphaned' && b.thread.status !== 'orphaned') { return -1; }
+                if (a.thread.status !== 'orphaned' && b.thread.status === 'orphaned') { return 1; }
                 return 0;
             });
 
@@ -180,7 +180,7 @@ export class CommandHandler {
             thread = picked?.thread;
         }
 
-        if (!thread) {return;}
+        if (!thread) { return; }
 
         // Update anchor
         const newAnchor = AnchoringEngine.createAnchor(editor.document, editor.selection);
@@ -201,5 +201,59 @@ export class CommandHandler {
 
         await this.storageService.updateThread(thread);
         vscode.window.showInformationMessage('Thread reattached.');
+    }
+    public async deleteThread(arg: ReviewThread | string) {
+        let threadId: string | undefined;
+        if (typeof arg === 'string') {
+            threadId = arg;
+        } else if (arg && arg.id) {
+            threadId = arg.id;
+        }
+
+        if (threadId) {
+            const confirm = await vscode.window.showWarningMessage('Delete this thread permanently?', { modal: true }, 'Delete');
+            if (confirm === 'Delete') {
+                await this.storageService.deleteThread(threadId);
+            }
+        }
+    }
+
+    public async deleteMessage(threadId: string, messageId: string) {
+        const threads = await this.storageService.getThreads();
+        const thread = threads.find(t => t.id === threadId);
+        if (!thread) { return; }
+
+        const confirm = await vscode.window.showWarningMessage('Delete this comment?', { modal: true }, 'Delete');
+        if (confirm !== 'Delete') { return; }
+
+        thread.messages = thread.messages.filter(m => m.id !== messageId);
+        thread.updatedAt = new Date().toISOString();
+
+        if (thread.messages.length === 0) {
+            await this.storageService.deleteThread(threadId);
+        } else {
+            await this.storageService.updateThread(thread);
+        }
+    }
+
+    public async editMessage(threadId: string, messageId: string) {
+        const threads = await this.storageService.getThreads();
+        const thread = threads.find(t => t.id === threadId);
+        if (!thread) { return; }
+
+        const message = thread.messages.find(m => m.id === messageId);
+        if (!message) { return; }
+
+        const newText = await vscode.window.showInputBox({
+            prompt: 'Edit comment',
+            value: message.body
+        });
+
+        if (newText !== undefined) {
+            message.body = newText;
+            // message.updatedAt = new Date().toISOString(); // Optional: track edit time
+            thread.updatedAt = new Date().toISOString();
+            await this.storageService.updateThread(thread);
+        }
     }
 }

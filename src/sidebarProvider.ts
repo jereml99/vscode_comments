@@ -39,7 +39,7 @@ export class ReviewTreeDataProvider implements vscode.TreeDataProvider<TreeItem>
         }
 
         if (element instanceof ReviewThreadItem) {
-            return element.thread.messages.map(m => new ReviewMessageItem(m));
+            return element.thread.messages.map(m => new ReviewMessageItem(m, element.thread.id));
         }
 
         if (element instanceof ReviewMessageItem) {
@@ -139,9 +139,15 @@ export class ReviewThreadItem extends vscode.TreeItem {
 }
 
 export class ReviewMessageItem extends vscode.TreeItem {
-    constructor(message: any) {
+    public readonly messageId: string;
+    public readonly threadId: string;
+
+    constructor(message: any, threadId: string) {
         // Label: Author
         super(message.author || 'User', vscode.TreeItemCollapsibleState.None);
+
+        this.messageId = message.id;
+        this.threadId = threadId;
 
         // Description: Truncated Body
         this.description = message.body;
@@ -152,6 +158,7 @@ export class ReviewMessageItem extends vscode.TreeItem {
         md.isTrusted = true;
         this.tooltip = md;
 
+        this.contextValue = 'message';
         this.iconPath = new vscode.ThemeIcon('account');
     }
 }

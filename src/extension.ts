@@ -58,7 +58,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand('reviewComments.deleteThread', (arg) => {
 			const threadId = getThreadId(arg);
-			if (threadId) { storageService.deleteThread(threadId); }
+			if (threadId) { commandHandler.deleteThread(threadId); }
+		}),
+
+		vscode.commands.registerCommand('reviewComments.deleteMessage', (arg) => {
+			if (arg && arg.threadId && arg.messageId) {
+				commandHandler.deleteMessage(arg.threadId, arg.messageId);
+			}
+		}),
+
+		vscode.commands.registerCommand('reviewComments.editMessage', (arg) => {
+			if (arg && arg.threadId && arg.messageId) {
+				commandHandler.editMessage(arg.threadId, arg.messageId);
+			}
 		}),
 
 		vscode.commands.registerCommand('reviewComments.openThread', (arg) => {

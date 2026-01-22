@@ -33,7 +33,7 @@ export class DecorationManager {
             };
 
             if (thread.status === 'resolved') {
-                resolvedDecorations.push(decoration);
+                // resolvedDecorations.push(decoration); // Disabled per user request
             } else {
                 openDecorations.push(decoration);
             }
