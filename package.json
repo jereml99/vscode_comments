@@ -1,23 +1,136 @@
 {
   "name": "git-review-comments",
+  "publisher": "me",
   "displayName": "Git Review Comments",
   "description": "Inline review comments stored in the repo",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.108.1"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:reviewComments.addThread",
+    "onView:review-comments-sidebar"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "review-comments",
+          "title": "Review Comments",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "review-comments": [
+        {
+          "id": "review-comments-sidebar",
+          "name": "Threads"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "git-review-comments.helloWorld",
-        "title": "Hello World"
+        "command": "reviewComments.addThread",
+        "title": "Add Review Comment",
+        "icon": "$(add)"
+      },
+      {
+        "command": "reviewComments.replyThread",
+        "title": "Reply to Comment"
+      },
+      {
+        "command": "reviewComments.resolveThread",
+        "title": "Resolve Thread"
+      },
+      {
+        "command": "reviewComments.reopenThread",
+        "title": "Reopen Thread"
+      },
+      {
+        "command": "reviewComments.reattachThread",
+        "title": "Reattach Review Comment"
+      },
+      {
+        "command": "reviewComments.deleteThread",
+        "title": "Delete Thread"
+      },
+      {
+        "command": "reviewComments.refreshThreads",
+        "title": "Refresh Threads",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "reviewComments.sortDate",
+        "title": "Sort by Date"
+      },
+      {
+        "command": "reviewComments.sortFile",
+        "title": "Sort by File"
+      },
+      {
+        "command": "reviewComments.sortStatus",
+        "title": "Sort by Status"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "reviewComments.addThread",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        },
+        {
+          "command": "reviewComments.reattachThread",
+          "when": "editorHasSelection",
+          "group": "modification"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "reviewComments.refreshThreads",
+          "when": "view == review-comments-sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "reviewComments.sortDate",
+          "when": "view == review-comments-sidebar",
+          "group": "sort"
+        },
+        {
+          "command": "reviewComments.sortFile",
+          "when": "view == review-comments-sidebar",
+          "group": "sort"
+        },
+        {
+          "command": "reviewComments.sortStatus",
+          "when": "view == review-comments-sidebar",
+          "group": "sort"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "reviewComments.replyThread",
+          "when": "view == review-comments-sidebar",
+          "group": "inline"
+        },
+        {
+          "command": "reviewComments.resolveThread",
+          "when": "view == review-comments-sidebar && viewItem == thread-open",
+          "group": "inline"
+        },
+        {
+          "command": "reviewComments.reopenThread",
+          "when": "view == review-comments-sidebar && viewItem == thread-resolved",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -28,13 +141,19 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.52.0",
-    "eslint": "^9.39.2",
-    "typescript": "^5.9.3",
+    "@types/sinon": "^21.0.0",
+    "@types/uuid": "^9.0.8",
+    "@types/vscode": "^1.108.1",
     "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.2",
+    "sinon": "^21.0.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
   }
 }
