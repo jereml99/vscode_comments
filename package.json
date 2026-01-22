@@ -125,7 +125,7 @@
     "@types/node": "22.x",
     "@types/sinon": "^21.0.0",
     "@types/uuid": "^9.0.8",
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.90.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.2",
