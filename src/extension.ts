@@ -21,14 +21,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register Commands
 	const getThreadId = (arg: any): string | undefined => {
-		if (arg instanceof ReviewTreeDataProvider) {return undefined;} // Should not happen but just in case
-		if (arg && arg.thread && arg.thread.id) {return arg.thread.id;} // From TreeView context
-		if (arg && arg.id) {return arg.id;} // From direct object
+		if (arg instanceof ReviewTreeDataProvider) { return undefined; } // Should not happen but just in case
+		if (arg && arg.thread && arg.thread.id) { return arg.thread.id; } // From TreeView context
+		if (arg && arg.id) { return arg.id; } // From direct object
 		return undefined;
 	};
 
 	const getThread = (arg: any) => {
-		if (arg && arg.thread) {return arg.thread;}
+		if (arg && arg.thread) { return arg.thread; }
 		return arg;
 	};
 
@@ -42,12 +42,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand('reviewComments.resolveThread', (arg) => {
 			const threadId = getThreadId(arg);
-			if (threadId) {commandHandler.resolveThread(threadId);}
+			if (threadId) { commandHandler.resolveThread(threadId); }
 		}),
 
 		vscode.commands.registerCommand('reviewComments.reopenThread', (arg) => {
 			const threadId = getThreadId(arg);
-			if (threadId) {commandHandler.reopenThread(threadId);}
+			if (threadId) { commandHandler.reopenThread(threadId); }
 		}),
 
 		vscode.commands.registerCommand('reviewComments.reattachThread', (arg) => {
@@ -57,31 +57,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand('reviewComments.deleteThread', (arg) => {
 			const threadId = getThreadId(arg);
-			if (threadId) {storageService.deleteThread(threadId);}
+			if (threadId) { storageService.deleteThread(threadId); }
 		}),
 
 		vscode.commands.registerCommand('reviewComments.openThread', (arg) => {
 			const thread = getThread(arg);
-			if (thread) {commandHandler.openThread(thread);}
+			if (thread) { commandHandler.openThread(thread); }
 		}),
 
 		vscode.commands.registerCommand('reviewComments.refreshThreads', () => treeDataProvider.refresh()),
 
 		vscode.commands.registerCommand('reviewComments.filterAll', () => treeDataProvider.setFilter('all')),
 		vscode.commands.registerCommand('reviewComments.filterOpen', () => treeDataProvider.setFilter('open')),
-		vscode.commands.registerCommand('reviewComments.filterResolved', () => treeDataProvider.setFilter('resolved')),
-
-		vscode.commands.registerCommand('reviewComments.sortDate', () => treeDataProvider.setSort('updatedAt')),
-		vscode.commands.registerCommand('reviewComments.sortFile', () => treeDataProvider.setSort('file')),
-		vscode.commands.registerCommand('reviewComments.sortStatus', () => treeDataProvider.setSort('status'))
+		vscode.commands.registerCommand('reviewComments.filterResolved', () => treeDataProvider.setFilter('resolved'))
 	);
 
 	// Initial Load & Decorate
 	const updateDecorations = async (editor: vscode.TextEditor) => {
-		if (!editor) {return;}
+		if (!editor) { return; }
 
 		const folder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
-		if (!folder) {return;}
+		if (!folder) { return; }
 
 		const relativePath = path.relative(folder.uri.fsPath, editor.document.uri.fsPath).split(path.sep).join('/');
 		const threads = await storageService.getThreads();
@@ -100,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
-		if (editor) {updateDecorations(editor);}
+		if (editor) { updateDecorations(editor); }
 	}, null, context.subscriptions);
 
 	vscode.workspace.onDidChangeTextDocument(event => {
@@ -113,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Reload decorations when storage changes (e.g. new comment added)
 	storageService.onDidStorageChange(() => {
 		const editor = vscode.window.activeTextEditor;
-		if (editor) {updateDecorations(editor);}
+		if (editor) { updateDecorations(editor); }
 	});
 
 	// Initial run

@@ -64,18 +64,14 @@
         "command": "reviewComments.refreshThreads",
         "title": "Refresh Threads",
         "icon": "$(refresh)"
-      },
+      }
+    ],
+    "keybindings": [
       {
-        "command": "reviewComments.sortDate",
-        "title": "Sort by Date"
-      },
-      {
-        "command": "reviewComments.sortFile",
-        "title": "Sort by File"
-      },
-      {
-        "command": "reviewComments.sortStatus",
-        "title": "Sort by Status"
+        "command": "reviewComments.addThread",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
@@ -96,21 +92,6 @@
           "command": "reviewComments.refreshThreads",
           "when": "view == review-comments-sidebar",
           "group": "navigation"
-        },
-        {
-          "command": "reviewComments.sortDate",
-          "when": "view == review-comments-sidebar",
-          "group": "sort"
-        },
-        {
-          "command": "reviewComments.sortFile",
-          "when": "view == review-comments-sidebar",
-          "group": "sort"
-        },
-        {
-          "command": "reviewComments.sortStatus",
-          "when": "view == review-comments-sidebar",
-          "group": "sort"
         }
       ],
       "view/item/context": [
